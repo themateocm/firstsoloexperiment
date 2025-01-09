@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daily Motivation</title>
+    <title>Quote Category Game</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -22,7 +22,7 @@
             border-radius: 15px;
             backdrop-filter: blur(10px);
             box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-            max-width: 600px;
+            max-width: 800px;
             width: 90%;
         }
         .quote {
@@ -34,17 +34,42 @@
             font-style: italic;
             font-size: 1.1rem;
             opacity: 0.9;
-            margin-bottom: 0.5rem;
+            margin-bottom: 2rem;
         }
-        .category {
-            display: inline-block;
-            background: rgba(255, 255, 255, 0.15);
-            padding: 0.3rem 0.8rem;
-            border-radius: 15px;
-            font-size: 0.9rem;
+        .question {
+            font-size: 1.2rem;
             margin-bottom: 1.5rem;
+            color: #ffd700;
         }
-        button {
+        .options-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .option-button {
+            padding: 1rem;
+            font-size: 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .option-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        .option-button.correct {
+            background: rgba(46, 213, 115, 0.6);
+            border-color: #2ed573;
+        }
+        .option-button.incorrect {
+            background: rgba(255, 71, 87, 0.6);
+            border-color: #ff4757;
+        }
+        .next-button {
             margin-top: 1rem;
             padding: 0.8rem 1.5rem;
             font-size: 1rem;
@@ -55,32 +80,340 @@
             cursor: pointer;
             transition: background 0.3s ease;
         }
-        button:hover {
+        .next-button:hover {
             background: rgba(255, 255, 255, 0.3);
+        }
+        .score {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: #ffd700;
+        }
+        .remaining {
+            font-size: 1rem;
+            color: #a8e6cf;
+            margin-bottom: 1rem;
+        }
+        .multiplier {
+            font-size: 1rem;
+            color: #00ff95;
+            margin-bottom: 1rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .multiplier.active {
+            opacity: 1;
+        }
+        .level-info {
+            font-size: 1rem;
+            color: #a8e6cf;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .level-up {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .level-up-content {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+            border: 2px solid #ffd700;
+        }
+        .level-up h2 {
+            color: #ffd700;
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+        .level-up p {
+            font-size: 1.2rem;
+            margin: 1rem 0;
+            color: #fff;
+        }
+        .continue-button {
+            background: #ffd700;
+            color: #333;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 1rem;
+            transition: background 0.3s ease;
+        }
+        .continue-button:hover {
+            background: #ffed4a;
+        }
+        .difficulty-indicator {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            margin-left: 1rem;
+        }
+        .difficulty-1 {
+            background: #4CAF50;
+            color: white;
+        }
+        .difficulty-2 {
+            background: #FFA726;
+            color: white;
+        }
+        .difficulty-3 {
+            background: #f44336;
+            color: white;
+        }
+        .game-over {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .game-over-content {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+        }
+        .game-over h2 {
+            color: #ffd700;
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+        .game-over p {
+            font-size: 1.2rem;
+            margin: 1rem 0;
+        }
+        .play-again {
+            background: #ffd700;
+            color: #333;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 1rem;
+            transition: background 0.3s ease;
+        }
+        .play-again:hover {
+            background: #ffed4a;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="quote" id="quote">Loading your daily motivation...</div>
+        <div class="score">Score: <span id="score">0</span></div>
+        <div class="level-info">
+            <span>Level: <span id="level">1</span></span>
+            <span>Quotes until next level: <span id="quotesUntilNext">5</span></span>
+        </div>
+        <div class="remaining">Quotes Remaining: <span id="remaining">60</span></div>
+        <div class="multiplier" id="multiplier">Streak: x1</div>
+        <div class="quote" id="quote">Loading your quote...</div>
         <div class="author" id="author"></div>
-        <div class="category" id="category"></div>
-        <button onclick="getNewQuote()">New Quote</button>
+        <div class="question">Which word best reflects the quote category?</div>
+        <div class="options-container" id="options">
+            <!-- Options will be dynamically added here -->
+        </div>
+        <button class="next-button" onclick="getNewQuote()" disabled id="nextButton">Next Quote</button>
     </div>
 
     <script>
+        let currentCategory = '';
+        let score = 0;
+        let streak = 0;
+        let answered = false;
+        let currentLevel = 1;
+
+        function showLevelUp(newLevel) {
+            const levelUp = document.createElement('div');
+            levelUp.className = 'level-up';
+            
+            const difficultyText = newLevel === 2 ? 
+                "Quotes will become more subtle and challenging." : 
+                "These are the most ambiguous quotes. Good luck!";
+            
+            levelUp.innerHTML = `
+                <div class="level-up-content">
+                    <h2>Level Up!</h2>
+                    <p>You've advanced to Level ${newLevel}</p>
+                    <p>${difficultyText}</p>
+                    <button class="continue-button" onclick="continuePlaying(this)">Continue</button>
+                </div>
+            `;
+            document.body.appendChild(levelUp);
+        }
+
+        function continuePlaying(button) {
+            button.closest('.level-up').remove();
+            getNewQuote();
+        }
+
+        function updateLevelInfo(level, quotesUntilNext) {
+            document.getElementById('level').textContent = level;
+            document.getElementById('quotesUntilNext').textContent = quotesUntilNext;
+        }
+
+        function showGameOver() {
+            const gameOver = document.createElement('div');
+            gameOver.className = 'game-over';
+            gameOver.innerHTML = `
+                <div class="game-over-content">
+                    <h2>Game Over!</h2>
+                    <p>Congratulations! You've completed all 60 quotes.</p>
+                    <p>Final Score: ${score}</p>
+                    <button class="play-again" onclick="location.reload()">Play Again</button>
+                </div>
+            `;
+            document.body.appendChild(gameOver);
+        }
+
+        function updateMultiplier() {
+            const multiplierElement = document.getElementById('multiplier');
+            multiplierElement.textContent = `Streak: x${streak + 1}`;
+            multiplierElement.classList.add('active');
+        }
+
+        function resetMultiplier() {
+            streak = 0;
+            const multiplierElement = document.getElementById('multiplier');
+            multiplierElement.classList.remove('active');
+        }
+
+        function updateScore(points) {
+            const scoreElement = document.getElementById('score');
+            score += points * (streak + 1);
+            scoreElement.textContent = score;
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function createOptionButton(category, isCorrect) {
+            const button = document.createElement('button');
+            button.className = 'option-button';
+            button.textContent = category;
+            button.onclick = () => {
+                if (answered) return;
+                answered = true;
+                
+                // Show correct/incorrect for all buttons
+                document.querySelectorAll('.option-button').forEach(btn => {
+                    if (btn.textContent === currentCategory) {
+                        btn.classList.add('correct');
+                    } else if (btn === button) {
+                        btn.classList.add('incorrect');
+                    }
+                });
+
+                // Update score and streak if correct
+                if (isCorrect) {
+                    streak++;
+                    updateMultiplier();
+                    updateScore(1);
+                } else {
+                    resetMultiplier();
+                }
+
+                // Enable next button
+                document.getElementById('nextButton').disabled = false;
+            };
+            return button;
+        }
+
         async function getNewQuote() {
             try {
+                // Reset state
+                answered = false;
+                document.getElementById('nextButton').disabled = true;
+                
                 const response = await fetch('http://localhost:8000/quote');
                 const data = await response.json();
-                document.getElementById('quote').textContent = `"${data.quote}"`;
-                document.getElementById('author').textContent = `- ${data.author}`;
-                document.getElementById('category').textContent = data.category;
+
+                if (data.gameOver) {
+                    showGameOver();
+                    return;
+                }
+
+                if (data.levelUp) {
+                    showLevelUp(data.newLevel);
+                    return;
+                }
+                
+                // Update all UI elements, checking if they exist first
+                const elements = {
+                    quote: document.getElementById('quote'),
+                    author: document.getElementById('author'),
+                    remaining: document.getElementById('remaining'),
+                    level: document.getElementById('level'),
+                    quotesUntilNext: document.getElementById('quotesUntilNext')
+                };
+
+                if (elements.quote) elements.quote.textContent = `"${data.quote}"`;
+                if (elements.author) elements.author.textContent = `- ${data.author}`;
+                if (elements.remaining) elements.remaining.textContent = data.remaining;
+                if (elements.level) elements.level.textContent = data.currentLevel;
+                if (elements.quotesUntilNext) elements.quotesUntilNext.textContent = data.quotesUntilNextLevel;
+
+                currentCategory = data.category;
+                currentLevel = data.currentLevel;
+
+                // Create array of all possible categories
+                const allCategories = ['hardship', 'celebration', 'anger', 'exhaustion'];
+                
+                // Remove current category and shuffle remaining
+                const otherCategories = allCategories.filter(cat => cat !== currentCategory);
+                const shuffledOthers = shuffleArray(otherCategories);
+                
+                // Take first 3 wrong answers
+                const wrongAnswers = shuffledOthers.slice(0, 3);
+                
+                // Combine with correct answer and shuffle
+                const options = shuffleArray([currentCategory, ...wrongAnswers]);
+
+                // Clear and create new option buttons
+                const optionsContainer = document.getElementById('options');
+                if (optionsContainer) {
+                    optionsContainer.innerHTML = '';
+                    options.forEach(option => {
+                        const button = createOptionButton(option, option === currentCategory);
+                        optionsContainer.appendChild(button);
+                    });
+                }
+
             } catch (error) {
                 console.error('Error:', error);
-                document.getElementById('quote').textContent = 'Failed to load quote. Please try again.';
-                document.getElementById('author').textContent = '';
-                document.getElementById('category').textContent = '';
+                const quoteElement = document.getElementById('quote');
+                const authorElement = document.getElementById('author');
+                if (quoteElement) quoteElement.textContent = 'Failed to load quote. Please try again.';
+                if (authorElement) authorElement.textContent = '';
             }
         }
 
