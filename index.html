@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Motivation</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .container {
+            text-align: center;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            max-width: 600px;
+            width: 90%;
+        }
+        .quote {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            line-height: 1.4;
+        }
+        .author {
+            font-style: italic;
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-bottom: 0.5rem;
+        }
+        .category {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+        }
+        button {
+            margin-top: 1rem;
+            padding: 0.8rem 1.5rem;
+            font-size: 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        button:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="quote" id="quote">Loading your daily motivation...</div>
+        <div class="author" id="author"></div>
+        <div class="category" id="category"></div>
+        <button onclick="getNewQuote()">New Quote</button>
+    </div>
+
+    <script>
+        async function getNewQuote() {
+            try {
+                const response = await fetch('http://localhost:8000/quote');
+                const data = await response.json();
+                document.getElementById('quote').textContent = `"${data.quote}"`;
+                document.getElementById('author').textContent = `- ${data.author}`;
+                document.getElementById('category').textContent = data.category;
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('quote').textContent = 'Failed to load quote. Please try again.';
+                document.getElementById('author').textContent = '';
+                document.getElementById('category').textContent = '';
+            }
+        }
+
+        // Load initial quote
+        getNewQuote();
+    </script>
+</body>
+</html>
